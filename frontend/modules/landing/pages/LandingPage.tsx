@@ -1,3 +1,4 @@
+import Link from "next/link";
 import styles from "./LandingPage.module.css";
 
 export function LandingPage() {
@@ -19,7 +20,10 @@ export function LandingPage() {
             <a href="#services">Services</a>
             <a href="#about">About us</a>
           </div>
-          <a className={styles.navCta} href="#contact">Talk to our team <span aria-hidden="true">↗</span></a>
+          <div className={styles.navActions}>
+            <Link className={styles.loginLink} href="/login">Log in</Link>
+            <a className={styles.navCta} href="#contact">Talk to our team <span aria-hidden="true">↗</span></a>
+          </div>
         </nav>
       </header>
 

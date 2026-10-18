@@ -9,5 +9,6 @@ __pycache__/
 .venv/
 
 # Environment files
-.env*
+/.env
+/.env.*
 !.env.example

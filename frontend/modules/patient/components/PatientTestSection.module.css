@@ -1,0 +1,53 @@
+.section { padding: 64px max(32px, calc((100% - 1200px) / 2)) 72px; background: #fbfdfb; color: #183b3a; }
+.sectionHeading { display: flex; align-items: flex-start; justify-content: space-between; gap: 24px; max-width: 1200px; margin: 0 auto 28px; }
+.eyebrow { color: #548681; font-size: 9px; font-weight: 760; letter-spacing: 1.4px; }
+.sectionHeading h2 { margin: 9px 0 7px; font-size: clamp(27px, 3.4vw, 36px); font-weight: 620; letter-spacing: -1.5px; }
+.sectionHeading p { margin: 0; color: #627b79; font-size: 12px; line-height: 1.7; }
+.headingIcon { display: grid; width: 42px; height: 42px; flex: 0 0 auto; place-items: center; border-radius: 13px; background: #eaf5ef; color: #39867a; font-size: 24px; }
+.contentGrid { display: grid; max-width: 1200px; grid-template-columns: minmax(0, 1.15fr) minmax(300px, .85fr); gap: 22px; margin: 0 auto; }
+.form, .history { padding: 25px; border: 1px solid #e6eee9; border-radius: 12px; background: #fff; box-shadow: 0 12px 32px #234d3d08; }
+.form { display: grid; align-content: start; gap: 17px; }
+.fieldGrid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+.field { display: grid; gap: 8px; color: #365a54; font-size: 10px; font-weight: 700; }
+.field > span:not(.optional) { color: #bd705b; }
+.optional { margin-left: 5px; color: #8a9a94; font-size: 9px; font-weight: 500; }
+.field input, .field textarea { width: 100%; min-height: 42px; padding: 10px 11px; border: 1px solid #dfe9e3; border-radius: 7px; background: #fcfdfc; color: #294a46; font: inherit; font-size: 11px; font-weight: 450; }
+.field input[type="file"] { padding: 8px; }
+.field input::file-selector-button { margin-right: 10px; padding: 6px 9px; border: 1px solid #dce8e1; border-radius: 5px; background: #f2f8f4; color: #426f63; cursor: pointer; font: inherit; font-size: 10px; }
+.field textarea { min-height: 93px; resize: vertical; line-height: 1.6; }
+.field input:focus, .field textarea:focus { border-color: #73a99a; outline: 3px solid #73a99a26; }
+.field small { color: #879891; font-size: 9px; font-weight: 450; }
+.submitButton { display: flex; min-height: 43px; align-items: center; justify-content: space-between; padding: 0 15px; border: 0; border-radius: 7px; background: #187c78; color: #fff; cursor: pointer; font: inherit; font-size: 11px; font-weight: 700; }
+.submitButton:hover { background: #126663; }
+.submitButton:disabled { cursor: wait; opacity: .65; }
+.submitButton:focus-visible, .downloadLink:focus-visible { outline: 3px solid #8ebfa7; outline-offset: 3px; }
+.error, .success { margin: 0; font-size: 10px; line-height: 1.6; }
+.error { color: #975a4b; }
+.success { color: #28755b; }
+.history { min-height: 270px; }
+.historyHeading { display: flex; align-items: center; justify-content: space-between; padding-bottom: 16px; border-bottom: 1px solid #edf1ee; }
+.historyHeading h3 { margin: 0; color: #294a46; font-size: 13px; font-weight: 700; }
+.historyHeading > span { display: grid; min-width: 24px; height: 24px; place-items: center; padding: 0 6px; border-radius: 999px; background: #edf6f0; color: #548174; font-size: 9px; font-weight: 700; }
+.emptyState { padding: 27px 4px; color: #82938c; font-size: 10px; line-height: 1.7; }
+.submissionList { display: grid; gap: 0; margin: 0; padding: 0; list-style: none; }
+.submission { display: flex; align-items: center; gap: 11px; padding: 14px 0; border-bottom: 1px solid #edf1ee; }
+.fileIcon { display: grid; width: 33px; height: 33px; flex: 0 0 auto; place-items: center; border-radius: 9px; background: #edf3fa; color: #5f83b2; }
+.submissionDetails { display: grid; min-width: 0; flex: 1; gap: 3px; }
+.submissionDetails strong { overflow: hidden; color: #365a54; font-size: 10px; text-overflow: ellipsis; white-space: nowrap; }
+.submissionDetails small { overflow: hidden; color: #879891; font-size: 8px; text-overflow: ellipsis; white-space: nowrap; }
+.downloadLink { flex: 0 0 auto; color: #187c78; font-size: 9px; font-weight: 700; text-decoration: none; }
+.downloadLink:hover { text-decoration: underline; }
+.privacyNote { margin: 17px 0 0; color: #879891; font-size: 9px; line-height: 1.6; }
+
+@media (max-width: 800px) {
+  .section { padding: 52px 22px 60px; }
+  .contentGrid { grid-template-columns: 1fr; }
+}
+
+@media (max-width: 560px) {
+  .section { padding: 45px 20px 52px; }
+  .form, .history { padding: 19px; }
+  .fieldGrid { grid-template-columns: 1fr; }
+  .sectionHeading { gap: 14px; }
+  .headingIcon { width: 36px; height: 36px; }
+}

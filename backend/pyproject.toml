@@ -10,6 +10,12 @@ python = "^3.11"
 fastapi = "^0.115.0"
 pydantic = "^2.10.0"
 uvicorn = { version = "^0.34.0", extras = ["standard"] }
+email-validator = "^2.2.0"
+PyJWT = "^2.10.1"
+pwdlib = { version = "^0.2.1", extras = ["argon2"] }
+pymysql = "^1.1.1"
+sqlalchemy = "^2.0.38"
+python-multipart = "^0.0.20"
 
 [build-system]
 requires = ["poetry-core>=2.0.0,<3.0.0"]

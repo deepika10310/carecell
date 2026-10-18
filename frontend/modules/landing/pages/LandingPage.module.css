@@ -53,6 +53,9 @@
 .brandMark svg { width: 29px; height: 29px; }
 
 .navLinks { display: flex; align-items: center; gap: 38px; margin-left: 40px; }
+.navActions { display: flex; align-items: center; gap: 21px; }
+.loginLink { color: #426661; font-size: 12px; font-weight: 680; text-decoration: none; transition: color .18s ease; }
+.loginLink:hover { color: var(--teal); }
 .navLinks a,
 .footer a:not(.footerBrand) { color: #5e7773; font-size: 13px; font-weight: 560; text-decoration: none; transition: color .18s ease; }
 .navLinks a:hover,
@@ -206,6 +209,8 @@
   .brand { gap: 8px; font-size: 20px; }
   .brandMark { width: 36px; height: 36px; border-radius: 11px; }
   .navLinks { display: none; }
+  .navActions { gap: 12px; }
+  .loginLink { font-size: 11px; }
   .navCta { min-height: 39px; gap: 8px; padding: 0 11px; font-size: 10px; }
   .hero { width: calc(100% - 40px); padding: 56px 0 48px; }
   .heroTitle { margin: 20px 0 17px; font-size: clamp(49px, 13vw, 65px); letter-spacing: -4px; }

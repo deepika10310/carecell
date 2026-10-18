@@ -1,4 +1,20 @@
 services:
+  mysql:
+    image: mysql:8.4
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:?Set MYSQL_ROOT_PASSWORD in the root .env file}
+      MYSQL_DATABASE: ${MYSQL_DATABASE:-carecell}
+      MYSQL_USER: ${MYSQL_USER:-carecell_app}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD:?Set MYSQL_PASSWORD in the root .env file}
+    volumes:
+      - mysql_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD-SHELL", "mysqladmin ping -h 127.0.0.1 -uroot -p$${MYSQL_ROOT_PASSWORD} --silent"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+
   frontend:
     build:
       context: ./frontend
@@ -18,6 +34,20 @@ services:
       dockerfile: Dockerfile
     ports:
       - "8000:8000"
+    environment:
+      MYSQL_HOST: mysql
+      MYSQL_PORT: 3306
+      MYSQL_DATABASE: ${MYSQL_DATABASE:-carecell}
+      MYSQL_USER: ${MYSQL_USER:-carecell_app}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD:?Set MYSQL_PASSWORD in the root .env file}
+      JWT_SECRET_KEY: ${JWT_SECRET_KEY:?Set JWT_SECRET_KEY in the root .env file}
+      COOKIE_SECURE: "false"
     volumes:
       - ./backend:/app
     command: ["poetry", "run", "uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000"]
+    depends_on:
+      mysql:
+        condition: service_healthy
+
+volumes:
+  mysql_data:
