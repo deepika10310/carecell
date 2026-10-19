@@ -1,11 +1,13 @@
 from datetime import date
 from pathlib import Path
 import secrets
+from urllib.parse import quote
 from uuid import uuid4
 
 from fastapi import APIRouter, Depends, File, Form, HTTPException, UploadFile, status
-from fastapi.responses import RedirectResponse
+from fastapi.responses import StreamingResponse
 from pydantic import EmailStr, TypeAdapter, ValidationError
+from starlette.background import BackgroundTask
 from sqlalchemy import func, select
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
@@ -17,7 +19,7 @@ from app.models.test_submission import TestSubmission
 from app.models.user import User
 from app.schemas.test_submission import DoctorSummary, TestSubmissionResponse
 from app.services.auth import hash_password
-from app.services.object_storage import ObjectStorageError, create_download_url, delete_object, upload_object
+from app.services.object_storage import ObjectStorageError, delete_object, get_object_body, upload_object
 
 router = APIRouter(prefix="/tests", tags=["patient tests"])
 MAX_UPLOAD_BYTES = 10 * 1024 * 1024
@@ -279,7 +281,7 @@ def download_test_submission(
     submission_id: int,
     user: User = Depends(require_patient),
     db: Session = Depends(get_db_session),
-) -> RedirectResponse:
+) -> StreamingResponse:
     submission = db.scalar(
         select(TestSubmission).where(
             TestSubmission.id == submission_id,
@@ -292,7 +294,15 @@ def download_test_submission(
     if not submission.s3_key:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="The uploaded file is unavailable.")
     try:
-        download_url = create_download_url(submission.s3_key, submission.original_filename)
+        body = get_object_body(submission.s3_key)
     except ObjectStorageError as error:
         raise HTTPException(status_code=status.HTTP_503_SERVICE_UNAVAILABLE, detail=str(error)) from error
-    return RedirectResponse(download_url, status_code=status.HTTP_307_TEMPORARY_REDIRECT)
+    return StreamingResponse(
+        body,
+        media_type=submission.content_type,
+        headers={
+            "Content-Disposition": f"attachment; filename*=UTF-8''{quote(submission.original_filename, safe='')}",
+            "Content-Length": str(submission.file_size),
+        },
+        background=BackgroundTask(body.close),
+    )

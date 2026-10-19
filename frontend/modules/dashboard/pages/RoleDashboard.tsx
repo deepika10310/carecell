@@ -6,6 +6,7 @@ import { useEffect, useState } from "react";
 import { getCurrentUser, logout } from "@/modules/auth/api/auth";
 import type { AuthUser, UserRole } from "@/modules/auth/types/auth";
 import { getRoleHome } from "@/modules/auth/utils/roleRoutes";
+import { HealthChat } from "@/modules/chat/components/HealthChat";
 import styles from "./RoleDashboard.module.css";
 
 type DashboardContent = {
@@ -163,6 +164,13 @@ export function RoleDashboard({ role }: RoleDashboardProps) {
               <p>{content.primaryDescription}</p>
               <span className={styles.comingSoon}>Open health journey →</span>
             </Link>
+          ) : role === "Doctor" ? (
+            <Link className={`${styles.actionCard} ${styles.actionCardLink}`} href="/doctor/patient-care">
+              <span className={`${styles.actionIcon} ${styles.mint}`} aria-hidden="true">↗</span>
+              <h3>{content.primaryLabel}</h3>
+              <p>{content.primaryDescription}</p>
+              <span className={styles.comingSoon}>Open patient care →</span>
+            </Link>
           ) : (
             <article className={styles.actionCard}>
             <span className={`${styles.actionIcon} ${styles.mint}`} aria-hidden="true">↗</span>
@@ -191,6 +199,7 @@ export function RoleDashboard({ role }: RoleDashboardProps) {
         <span>CARE THAT CONNECTS. PEOPLE AT THE CENTER.</span>
         <span>Signed in as {role}</span>
       </footer>
+      {(role === "Patient" || role === "Doctor") && <HealthChat role={role} />}
     </main>
   );
 }

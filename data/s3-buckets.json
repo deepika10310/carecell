@@ -1,0 +1,31 @@
+{
+  "000000000000/carecell" : {
+    "name" : "carecell",
+    "creationDate" : "2026-10-19T22:17:57.488803648Z",
+    "versioningStatus" : null,
+    "loggingConfiguration" : null,
+    "tags" : { },
+    "notificationConfiguration" : null,
+    "objectLockEnabled" : false,
+    "defaultRetention" : null,
+    "policy" : null,
+    "corsConfiguration" : null,
+    "lifecycleConfiguration" : null,
+    "transitionDefaultMinimumObjectSize" : null,
+    "acl" : null,
+    "encryptionConfiguration" : null,
+    "replicationConfiguration" : null,
+    "publicAccessBlockConfiguration" : null,
+    "publicAccessBlockDeleted" : false,
+    "ownershipControlsConfiguration" : null,
+    "requestPaymentPayer" : null,
+    "accelerateStatus" : null,
+    "region" : "us-east-1",
+    "websiteConfiguration" : null,
+    "metricsConfigurations" : null,
+    "intelligentTieringConfigurations" : null,
+    "analyticsConfigurations" : null,
+    "inventoryConfigurations" : null,
+    "versioningEnabled" : false
+  }
+}
