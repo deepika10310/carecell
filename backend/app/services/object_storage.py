@@ -44,6 +44,10 @@ def create_bucket_if_not_exists(s3, bucket_name: str) -> None:
             print(f"Error checking bucket '{bucket_name}': {e}")
             raise ObjectStorageError(f"The S3 bucket '{bucket_name}' could not be accessed.") from e
 
+
+def _ensure_bucket(s3) -> None:
+    create_bucket_if_not_exists(s3, _require_bucket())
+
 def _require_bucket() -> str:
     if not AWS_S3_BUCKET:
         raise ObjectStorageError("S3 storage is not configured. Set AWS_S3_BUCKET.")
@@ -53,7 +57,9 @@ def _require_bucket() -> str:
 def upload_object(key: str, body: bytes | BinaryIO, content_type: str) -> None:
     try:
         print(f"Uploading object to S3 with key: {key}, content type: {content_type}, and size: {len(body) if isinstance(body, bytes) else 'unknown'} bytes")
-        _s3_client().put_object(
+        s3 = _s3_client()
+        _ensure_bucket(s3)
+        s3.put_object(
             Bucket=_require_bucket(),
             Key=key,
             Body=body,
@@ -70,6 +76,16 @@ def delete_object(key: str) -> None:
         _s3_client().delete_object(Bucket=_require_bucket(), Key=key)
     except (BotoCoreError, ClientError) as error:
         raise ObjectStorageError("The test result could not be removed from S3.") from error
+
+
+def get_object_body(key: str):
+    try:
+        s3 = _s3_client()
+        _ensure_bucket(s3)
+        return s3.get_object(Bucket=_require_bucket(), Key=key)["Body"]
+    except (BotoCoreError, ClientError) as error:
+        print(f"Error downloading S3 object '{key}' from bucket '{AWS_S3_BUCKET}': {error}")
+        raise ObjectStorageError("The test result could not be downloaded from S3.") from error
 
 
 def create_download_url(key: str, filename: str) -> str:

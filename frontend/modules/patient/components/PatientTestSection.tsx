@@ -6,6 +6,7 @@ import { useEffect, useState, type FormEvent } from "react";
 import { getCurrentUser, logout } from "@/modules/auth/api/auth";
 import type { AuthUser } from "@/modules/auth/types/auth";
 import { getRoleHome } from "@/modules/auth/utils/roleRoutes";
+import { HealthChat } from "@/modules/chat/components/HealthChat";
 import {
   getPatientTestDownloadUrl,
   getPatientTests,
@@ -338,6 +339,7 @@ export function PatientTestSection() {
           </div>
         )}
       </section>
+      <HealthChat role="Patient" />
     </main>
   );
 }
