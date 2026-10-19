@@ -3,6 +3,13 @@ from datetime import date, datetime
 from pydantic import BaseModel, ConfigDict
 
 
+class DoctorSummary(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
+    id: int
+    full_name: str
+
+
 class TestSubmissionResponse(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 
@@ -15,3 +22,4 @@ class TestSubmissionResponse(BaseModel):
     content_type: str
     file_size: int
     uploaded_at: datetime
+    doctor: DoctorSummary | None

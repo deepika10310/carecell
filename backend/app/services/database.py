@@ -20,6 +20,37 @@ def initialize_database() -> None:
                     "ADD COLUMN role VARCHAR(20) NOT NULL DEFAULT 'Patient'"
                 )
             )
+    if inspect(engine).has_table(TestSubmission.__tablename__):
+        columns = {column["name"]: column for column in inspect(engine).get_columns(TestSubmission.__tablename__)}
+        if "doctor_id" not in columns:
+            with engine.begin() as connection:
+                connection.execute(text("ALTER TABLE test_submissions ADD COLUMN doctor_id INTEGER NULL"))
+                connection.execute(
+                    text(
+                        "ALTER TABLE test_submissions "
+                        "ADD CONSTRAINT fk_test_submissions_doctor_id_users "
+                        "FOREIGN KEY (doctor_id) REFERENCES users(id) ON DELETE SET NULL"
+                    )
+                )
+                connection.execute(text("CREATE INDEX ix_test_submissions_doctor_id ON test_submissions (doctor_id)"))
+        if "s3_key" not in columns:
+            with engine.begin() as connection:
+                connection.execute(text("ALTER TABLE test_submissions ADD COLUMN s3_key VARCHAR(512) NULL"))
+                connection.execute(
+                    text("UPDATE test_submissions SET s3_key = stored_filename WHERE s3_key IS NULL")
+                )
+                connection.execute(text("ALTER TABLE test_submissions MODIFY s3_key VARCHAR(512) NOT NULL"))
+        if "stored_filename" in columns and not columns["stored_filename"].get("nullable", True):
+            with engine.begin() as connection:
+                connection.execute(text("ALTER TABLE test_submissions MODIFY stored_filename VARCHAR(80) NULL"))
+        unique_keys = {
+            column
+            for constraint in inspect(engine).get_unique_constraints(TestSubmission.__tablename__)
+            for column in constraint.get("column_names", [])
+        }
+        if "s3_key" not in unique_keys:
+            with engine.begin() as connection:
+                connection.execute(text("ALTER TABLE test_submissions ADD UNIQUE (s3_key)"))
 
 
 def authenticate_user(

@@ -8,6 +8,12 @@ export type PatientTestSubmission = {
   content_type: string;
   file_size: number;
   uploaded_at: string;
+  doctor: DoctorSummary | null;
+};
+
+export type DoctorSummary = {
+  id: number;
+  full_name: string;
 };
 
 const apiUrl = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000";
@@ -37,4 +43,23 @@ export async function submitPatientTest(formData: FormData): Promise<PatientTest
 
 export function getPatientTestDownloadUrl(submissionId: number): string {
   return `${apiUrl}/api/tests/${submissionId}/download`;
+}
+
+export async function updatePatientTest(
+  submissionId: number,
+  formData: FormData,
+): Promise<PatientTestSubmission> {
+  const response = await fetch(`${apiUrl}/api/tests/${submissionId}`, {
+    method: "PATCH",
+    credentials: "include",
+    body: formData,
+  });
+  if (!response.ok) throw new Error(await getErrorMessage(response));
+  return (await response.json()) as PatientTestSubmission;
+}
+
+export async function getDoctors(): Promise<DoctorSummary[]> {
+  const response = await fetch(`${apiUrl}/api/tests/doctors`, { credentials: "include" });
+  if (!response.ok) throw new Error(await getErrorMessage(response));
+  return (await response.json()) as DoctorSummary[];
 }

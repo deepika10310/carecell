@@ -6,7 +6,6 @@ import { useEffect, useState } from "react";
 import { getCurrentUser, logout } from "@/modules/auth/api/auth";
 import type { AuthUser, UserRole } from "@/modules/auth/types/auth";
 import { getRoleHome } from "@/modules/auth/utils/roleRoutes";
-import { PatientTestSection } from "@/modules/patient/components/PatientTestSection";
 import styles from "./RoleDashboard.module.css";
 
 type DashboardContent = {
@@ -27,8 +26,8 @@ const contentByRole: Record<UserRole, DashboardContent> = {
     eyebrow: "YOUR CARE, ALL IN ONE PLACE",
     title: "Your health journey,\nwith you at the center.",
     description: "A calm place to stay connected with your care team and keep track of what matters to you.",
-    primaryLabel: "Your care plan",
-    primaryDescription: "Review your next steps and keep your care moving forward.",
+    primaryLabel: "My Health Journey",
+    primaryDescription: "View, add, and update your test results in one place.",
     secondaryLabel: "Appointments",
     secondaryDescription: "Stay up to date with upcoming visits and follow-ups.",
     thirdLabel: "Your care team",
@@ -157,12 +156,21 @@ export function RoleDashboard({ role }: RoleDashboardProps) {
         </div>
         {error && <p className={styles.error} role="alert">{error}</p>}
         <div className={styles.cardGrid}>
-          <article className={styles.actionCard}>
+          {role === "Patient" ? (
+            <Link className={`${styles.actionCard} ${styles.actionCardLink}`} href="/patient/health-journey">
+              <span className={`${styles.actionIcon} ${styles.mint}`} aria-hidden="true">↗</span>
+              <h3>{content.primaryLabel}</h3>
+              <p>{content.primaryDescription}</p>
+              <span className={styles.comingSoon}>Open health journey →</span>
+            </Link>
+          ) : (
+            <article className={styles.actionCard}>
             <span className={`${styles.actionIcon} ${styles.mint}`} aria-hidden="true">↗</span>
             <h3>{content.primaryLabel}</h3>
             <p>{content.primaryDescription}</p>
             <span className={styles.comingSoon}>Workspace feature</span>
-          </article>
+            </article>
+          )}
           <article className={styles.actionCard}>
             <span className={`${styles.actionIcon} ${styles.blue}`} aria-hidden="true">✳</span>
             <h3>{content.secondaryLabel}</h3>
@@ -177,8 +185,6 @@ export function RoleDashboard({ role }: RoleDashboardProps) {
           </article>
         </div>
       </section>
-
-      {role === "Patient" && <PatientTestSection />}
 
       <footer className={styles.footer}>
         <Link className={styles.footerBrand} href="/"><span aria-hidden="true">✳</span> carecell</Link>

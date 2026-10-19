@@ -43,6 +43,8 @@ The frontend requests `/api/hello` from the browser and displays the greeting, l
 
 The root `.env` is ignored by Git. It configures the local MySQL root password, the least-privilege `carecell_app` database account, and the session signing secret. The supplied `root/mysql` credentials are intended for local development only; change them and `JWT_SECRET_KEY` before any shared or production deployment. Never use the MySQL root account from the application.
 
+Patient test-result files are stored in a private S3 bucket; only the S3 object key and file metadata are stored in MySQL. Set `AWS_S3_BUCKET` and `AWS_REGION` in the root `.env`. For Docker Compose, the Floci endpoint is `http://floci:4566` (the Compose service DNS name); `localhost` inside the backend container refers to the backend itself, not Floci. Use `http://localhost:4566` only when running the backend directly on the host. Provide AWS credentials through the standard AWS credential chain (recommended: an IAM role) or set `AWS_ACCESS_KEY_ID` and `AWS_SECRET_ACCESS_KEY` for local development. The bucket should block public access; downloads use short-lived presigned URLs. The backend adds the `s3_key` column to an existing test submissions table at startup. Existing locally stored files are not automatically transferred to S3 and must be migrated separately if they need to remain downloadable.
+
 New accounts can be created from `/register`. After login or registration, Carecell redirects to the dashboard for the user's assigned role. Dashboard routes verify the session with `GET /api/auth/me` and send unauthenticated users to `/login`. The login API is `POST /api/auth/login`; related endpoints are `POST /api/auth/register`, `GET /api/auth/me`, and `POST /api/auth/logout`.
 
 For local development, promote a trusted account to the first administrator using a controlled MySQL session after registering it: `UPDATE users SET role = 'Admin' WHERE email = 'trusted-admin@example.com';`. Afterward, sign in as that administrator to assign `Doctor`, `Patient`, or `Admin` roles through the protected role-management endpoint. Do not expose a role selector on public registration.
@@ -67,4 +69,4 @@ npm run dev
 
 Set `NEXT_PUBLIC_API_URL` if the backend is hosted somewhere other than `http://localhost:8000`.
 
-When running the backend without Compose, set `MYSQL_HOST`, `MYSQL_PORT`, `MYSQL_DATABASE`, `MYSQL_USER`, `MYSQL_PASSWORD`, and `JWT_SECRET_KEY` in the backend process environment. The root `.env` is automatically loaded by Docker Compose, not by a bare Uvicorn process.
+When running the backend without Compose, set `MYSQL_HOST`, `MYSQL_PORT`, `MYSQL_DATABASE`, `MYSQL_USER`, `MYSQL_PASSWORD`, and `JWT_SECRET_KEY` in the backend process environment. Set `AWS_S3_ENDPOINT_URL=http://localhost:4566` for a Floci instance exposed on the host. The root `.env` is automatically loaded by Docker Compose, not by a bare Uvicorn process.

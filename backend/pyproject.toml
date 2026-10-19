@@ -16,6 +16,7 @@ pwdlib = { version = "^0.2.1", extras = ["argon2"] }
 pymysql = "^1.1.1"
 sqlalchemy = "^2.0.38"
 python-multipart = "^0.0.20"
+boto3 = "^1.37.0"
 
 [build-system]
 requires = ["poetry-core>=2.0.0,<3.0.0"]
