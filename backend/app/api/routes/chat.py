@@ -1,5 +1,6 @@
 import asyncio
 import json
+import logging
 from urllib.error import HTTPError, URLError
 from urllib.request import Request, urlopen
 
@@ -12,6 +13,7 @@ from app.models.user import User
 from app.schemas.chat import ChatRequest, ChatResponse
 
 router = APIRouter(prefix="/chat", tags=["AI chat"])
+logger = logging.getLogger(__name__)
 ALLOWED_ROLES = {UserRole.PATIENT, UserRole.DOCTOR}
 SYSTEM_PROMPT = (
     "You are Carecell's health information assistant. Give clear, empathetic, general health information. "
@@ -36,7 +38,7 @@ def _request_model(messages: list[dict[str, str]]) -> str:
         with urlopen(request, timeout=LLM_TIMEOUT_SECONDS) as response:
             result = json.loads(response.read())
     except HTTPError as error:
-        # Do not return upstream response bodies; they may contain provider details.
+        logger.warning("Configured LLM provider returned HTTP %s for model %s", error.code, LLM_MODEL)
         raise HTTPException(
             status_code=status.HTTP_502_BAD_GATEWAY,
             detail="The AI assistant is temporarily unavailable. Please try again.",
