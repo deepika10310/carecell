@@ -45,6 +45,8 @@ services:
       dockerfile: Dockerfile
     ports:
       - "8000:8000"
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
     environment:
       MYSQL_HOST: mysql
       MYSQL_PORT: 3306
