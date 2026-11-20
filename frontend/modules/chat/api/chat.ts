@@ -1,6 +1,7 @@
 export type ChatMessage = {
   role: "user" | "assistant";
   content: string;
+  image?: string;
 };
 
 const apiUrl = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000";

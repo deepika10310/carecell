@@ -7,7 +7,12 @@ from urllib.request import Request, urlopen
 from fastapi import APIRouter, Depends, HTTPException, status
 
 from app.api.routes.auth import get_current_user
-from app.core.config import LLM_API_KEY, LLM_BASE_URL, LLM_MODEL, LLM_TIMEOUT_SECONDS
+from app.core.config import (
+    LLM_API_KEY,
+    LLM_BASE_URL,
+    LLM_MODEL,
+    LLM_TIMEOUT_SECONDS,
+)
 from app.models.roles import UserRole
 from app.models.user import User
 from app.schemas.chat import ChatRequest, ChatResponse
@@ -23,13 +28,16 @@ SYSTEM_PROMPT = (
 )
 
 
-def _request_model(messages: list[dict[str, str]]) -> str:
-    payload = json.dumps({"model": LLM_MODEL, "messages": messages, "temperature": 0.4}).encode("utf-8")
+def _request_chat_completion(
+    messages: list[dict[str, object]], *, base_url: str, api_key: str, model: str, provider: str
+) -> str:
+    print("Requesting chat completion from %s provider for model %s", provider, model)
+    payload = json.dumps({"model": model, "messages": messages, "temperature": 0.4}).encode("utf-8")
     request = Request(
-        f"{LLM_BASE_URL}/chat/completions",
+        f"{base_url}/chat/completions",
         data=payload,
         headers={
-            "Authorization": f"Bearer {LLM_API_KEY}",
+            "Authorization": f"Bearer {api_key}",
             "Content-Type": "application/json",
         },
         method="POST",
@@ -38,7 +46,7 @@ def _request_model(messages: list[dict[str, str]]) -> str:
         with urlopen(request, timeout=LLM_TIMEOUT_SECONDS) as response:
             result = json.loads(response.read())
     except HTTPError as error:
-        logger.warning("Configured LLM provider returned HTTP %s for model %s", error.code, LLM_MODEL)
+        logger.warning("Configured %s provider returned HTTP %s for model %s", provider, error.code, model)
         raise HTTPException(
             status_code=status.HTTP_502_BAD_GATEWAY,
             detail="The AI assistant is temporarily unavailable. Please try again.",
@@ -61,6 +69,16 @@ def _request_model(messages: list[dict[str, str]]) -> str:
     return message.strip()
 
 
+def _request_model(messages: list[dict[str, object]]) -> str:
+    return _request_chat_completion(
+        messages,
+        base_url=LLM_BASE_URL,
+        api_key=LLM_API_KEY,
+        model=LLM_MODEL,
+        provider="configured LLM",
+    )
+
+
 @router.post("", response_model=ChatResponse)
 async def chat(
     payload: ChatRequest,
@@ -69,9 +87,20 @@ async def chat(
     if user.role not in ALLOWED_ROLES:
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Patient or doctor access is required.")
     if not LLM_API_KEY:
-        raise HTTPException(status_code=status.HTTP_503_SERVICE_UNAVAILABLE, detail="AI chat is not configured. Set LLM_API_KEY in the backend environment.")
+        raise HTTPException(
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+            detail="AI chat is not configured. Set LLM_API_KEY in the backend environment.",
+        )
 
-    conversation = [{"role": message.role, "content": message.content} for message in payload.messages]
+    conversation: list[dict[str, object]] = []
+    for message in payload.messages:
+        content: str | list[dict[str, object]] = message.content
+        if message.image:
+            content = [
+                {"type": "text", "text": message.content},
+                {"type": "image_url", "image_url": {"url": message.image}},
+            ]
+        conversation.append({"role": message.role, "content": content})
     messages = [{"role": "system", "content": SYSTEM_PROMPT}, *conversation]
     answer = await asyncio.to_thread(_request_model, messages)
     return ChatResponse(message=answer)

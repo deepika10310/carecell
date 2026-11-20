@@ -1,6 +1,6 @@
 # Carecell
 
-Carecell includes a Next.js App Router frontend, a FastAPI API, and a MySQL-backed account sign-in flow, running together in Docker Compose.
+Carecell includes a Next.js App Router frontend, a FastAPI API, and a MySQL-backed account sign-in flow. The frontend and backend run in Docker Compose; MySQL is hosted externally.
 
 ## Project structure
 
@@ -41,11 +41,15 @@ docker compose up --build
 
 The frontend requests `/api/hello` from the browser and displays the greeting, loading state, or a retryable error state. Login and registration send credentials to the FastAPI API; passwords are Argon2-hashed and sessions use HttpOnly cookies.
 
-The root `.env` is ignored by Git. It configures the local MySQL root password, the least-privilege `carecell_app` database account, and the session signing secret. The supplied `root/mysql` credentials are intended for local development only; change them and `JWT_SECRET_KEY` before any shared or production deployment. Never use the MySQL root account from the application.
+The root `.env` is ignored by Git. Set `DATABASE_URL` to your externally hosted MySQL connection string and set `JWT_SECRET_KEY` before starting Compose. For example, use `mysql+pymysql://USER:PASSWORD@HOST:3306/DATABASE?charset=utf8mb4`. URL-encode reserved characters in credentials, keep this URL secret, and configure the database provider's network allowlist/firewall to accept connections from the machine running Docker. The database account must have permissions to create and alter the application's tables during startup; use a least-privilege account and never use MySQL root.
+
+For a MySQL server running on the same computer at port `3306`, set `DATABASE_URL` to use `host.docker.internal` when running the backend through Compose (the root `.env` example is configured this way). For a backend running directly on the host, use `127.0.0.1` instead. Create the database and grant the application user access in your local MySQL server before starting the app.
+
+To create or reset local demo accounts, run `cd backend` followed by `poetry run python scripts/seed_users.py`. Alternatively, select the `carecell` database and run [backend/scripts/seed_users.sql](backend/scripts/seed_users.sql) in a MySQL client; the SQL script creates the `users` table if needed. Demo logins are `patient@test.com` / `patient`, `doctor@test.com` / `doctor`, and `admin@test.com` / `admin`. These predictable credentials are for local development only; do not use them in a shared or production environment.
 
 Patient test-result files are stored in a private S3 bucket; only the S3 object key and file metadata are stored in MySQL. Set `AWS_S3_BUCKET` and `AWS_REGION` in the root `.env`. For Docker Compose, the Floci endpoint is `http://floci:4566` (the Compose service DNS name); `localhost` inside the backend container refers to the backend itself, not Floci. Use `http://localhost:4566` only when running the backend directly on the host. Provide AWS credentials through the standard AWS credential chain (recommended: an IAM role) or set `AWS_ACCESS_KEY_ID` and `AWS_SECRET_ACCESS_KEY` for local development. The bucket should block public access; downloads use short-lived presigned URLs. The backend adds the `s3_key` column to an existing test submissions table at startup. Existing locally stored files are not automatically transferred to S3 and must be migrated separately if they need to remain downloadable.
 
-Patients and doctors can open the Carecell Assistant from their dashboard or health-record page. Configure its OpenAI-compatible Chat Completions endpoint in the root `.env` using `LLM_API_KEY`, `LLM_BASE_URL`, `LLM_MODEL`, and optionally `LLM_TIMEOUT_SECONDS`; the default model is `gpt-4o-mini` and the default API base is `https://api.openai.com/v1`. The API key stays in the backend and is never sent to the browser. Chat messages are not persisted by Carecell, and patient records are not automatically sent to the model. Use the provider's privacy controls appropriate for your data; the assistant provides general information and is not a substitute for clinical care. Restart the backend after changing these values.
+Patients and doctors can open the Carecell Assistant from their dashboard or health-record page. Configure the OpenAI-compatible Chat Completions endpoint in the root `.env` using `LLM_API_KEY`, `LLM_BASE_URL`, `LLM_MODEL`, and optionally `LLM_TIMEOUT_SECONDS`. The chat accepts optional JPEG, PNG, or WebP image attachments up to 5 MB and sends them in the OpenAI-compatible vision `image_url` content format. Provider credentials stay in the backend and are never sent to the browser. Chat messages and attachments are not persisted by Carecell, and patient records are not automatically sent to the model. Use the provider's privacy controls appropriate for your data; the assistant provides general information and is not a substitute for clinical care. Restart the backend after changing these values.
 
 New accounts can be created from `/register`. After login or registration, Carecell redirects to the dashboard for the user's assigned role. Dashboard routes verify the session with `GET /api/auth/me` and send unauthenticated users to `/login`. The login API is `POST /api/auth/login`; related endpoints are `POST /api/auth/register`, `GET /api/auth/me`, and `POST /api/auth/logout`.
 
@@ -71,4 +75,4 @@ npm run dev
 
 Set `NEXT_PUBLIC_API_URL` if the backend is hosted somewhere other than `http://localhost:8000`.
 
-When running the backend without Compose, set `MYSQL_HOST`, `MYSQL_PORT`, `MYSQL_DATABASE`, `MYSQL_USER`, `MYSQL_PASSWORD`, and `JWT_SECRET_KEY` in the backend process environment. Set `AWS_S3_ENDPOINT_URL=http://localhost:4566` for a Floci instance exposed on the host. The root `.env` is automatically loaded by Docker Compose, not by a bare Uvicorn process.
+When running the backend without Compose, set `DATABASE_URL` and `JWT_SECRET_KEY` in the backend process environment. The legacy `MYSQL_HOST`, `MYSQL_PORT`, `MYSQL_DATABASE`, `MYSQL_USER`, and `MYSQL_PASSWORD` settings remain supported if no `DATABASE_URL` is provided. Set `AWS_S3_ENDPOINT_URL=http://localhost:4566` for a Floci instance exposed on the host. The root `.env` is automatically loaded by Docker Compose, not by a bare Uvicorn process.
