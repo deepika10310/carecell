@@ -1,31 +1,4 @@
 services:
-  floci:
-    image: floci/floci:latest
-    ports:
-      - "4566:4566"
-    environment:
-      FLOCI_STORAGE_MODE: hybrid
-    volumes:
-      - /var/run/docker.sock:/var/run/docker.sock
-      - ./data:/app/data
-    user: root
-    restart: unless-stopped
-  mysql:
-    image: mysql:8.4
-    restart: unless-stopped
-    environment:
-      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:?Set MYSQL_ROOT_PASSWORD in the root .env file}
-      MYSQL_DATABASE: ${MYSQL_DATABASE:-carecell}
-      MYSQL_USER: ${MYSQL_USER:-carecell_app}
-      MYSQL_PASSWORD: ${MYSQL_PASSWORD:?Set MYSQL_PASSWORD in the root .env file}
-    volumes:
-      - mysql_data:/var/lib/mysql
-    healthcheck:
-      test: ["CMD-SHELL", "mysqladmin ping -h 127.0.0.1 -uroot -p$${MYSQL_ROOT_PASSWORD} --silent"]
-      interval: 5s
-      timeout: 5s
-      retries: 20
-
   frontend:
     build:
       context: ./frontend
@@ -33,11 +6,8 @@ services:
     ports:
       - "3000:3000"
     environment:
-      NEXT_PUBLIC_API_URL: http://localhost:8000
-    volumes:
-      - ./frontend:/app
-      - /app/node_modules
-    command: ["npm", "run", "dev"]
+      NEXT_PUBLIC_API_URL: https://your-domain.com/api
+    command: ["npm", "start"]
 
   backend:
     build:
@@ -48,11 +18,7 @@ services:
     extra_hosts:
       - "host.docker.internal:host-gateway"
     environment:
-      MYSQL_HOST: mysql
-      MYSQL_PORT: 3306
-      MYSQL_DATABASE: ${MYSQL_DATABASE:-carecell}
-      MYSQL_USER: ${MYSQL_USER:-carecell_app}
-      MYSQL_PASSWORD: ${MYSQL_PASSWORD:?Set MYSQL_PASSWORD in the root .env file}
+      DATABASE_URL: ${DATABASE_URL:?Set DATABASE_URL in the root .env file}
       JWT_SECRET_KEY: ${JWT_SECRET_KEY:?Set JWT_SECRET_KEY in the root .env file}
       AWS_S3_BUCKET: ${AWS_S3_BUCKET:-carecell}
       AWS_REGION: ${AWS_REGION:-us-east-1}
@@ -64,14 +30,7 @@ services:
       LLM_MODEL: ${LLM_MODEL:-gpt-4o-mini}
       LLM_TIMEOUT_SECONDS: ${LLM_TIMEOUT_SECONDS:-60}
       COOKIE_SECURE: "false"
-    volumes:
-      - ./backend:/app
     command: ["poetry", "run", "uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000"]
     depends_on:
       floci:
         condition: service_started
-      mysql:
-        condition: service_healthy
-
-volumes:
-  mysql_data:
