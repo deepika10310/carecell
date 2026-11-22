@@ -67,11 +67,6 @@ services:
     volumes:
       - ./backend:/app
     command: ["poetry", "run", "uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000"]
-    depends_on:
-      floci:
-        condition: service_started
-      mysql:
-        condition: service_healthy
 
 volumes:
   mysql_data:
