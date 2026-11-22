@@ -13,6 +13,5 @@ __pycache__/
 /.env*
 /.env.*
 !.env.example
-/.env_local
-/.env_local.*
-!.env_local.example
+*.env
+*.env*
