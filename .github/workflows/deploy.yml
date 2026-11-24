@@ -80,7 +80,7 @@ jobs:
             docker login --username AWS --password-stdin \
             ${{ steps.login-ecr.outputs.registry }}
 
-            cd /home/ubuntu/carecell
+            cd /home/ubuntu/app
 
             docker compose pull
 
