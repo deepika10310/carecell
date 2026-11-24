@@ -9,48 +9,80 @@ jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
 
+    env:
+      AWS_REGION: ap-south-2
+
     steps:
-      - name: Checkout
+      - name: Checkout Code
         uses: actions/checkout@v4
+
+      - name: Show files
+        run: |
+          pwd
+          ls -la
+          find . -name Dockerfile
 
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v4
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: ${{ secrets.AWS_REGION }}
+          aws-region: ap-south-2
 
-      - name: Login to ECR
+      - name: Verify AWS Identity
+        run: aws sts get-caller-identity
+
+      - name: Login to Amazon ECR
         id: login-ecr
         uses: aws-actions/amazon-ecr-login@v2
 
-      - name: Build Docker Image
-        run: |
-          docker build -t carecell-backend .
+      # Backend Image
 
-      - name: Tag Image
+      - name: Build Backend Image
+        run: |
+          docker build -t carecell-backend ./backend
+
+      - name: Tag Backend Image
         run: |
           docker tag carecell-backend:latest \
           ${{ steps.login-ecr.outputs.registry }}/carecell-backend:latest
 
-      - name: Push Image
+      - name: Push Backend Image
         run: |
           docker push \
           ${{ steps.login-ecr.outputs.registry }}/carecell-backend:latest
 
+      # Frontend Image
+
+      - name: Build Frontend Image
+        run: |
+          docker build -t carecell-frontend ./frontend
+
+      - name: Tag Frontend Image
+        run: |
+          docker tag carecell-frontend:latest \
+          ${{ steps.login-ecr.outputs.registry }}/carecell-frontend:latest
+
+      - name: Push Frontend Image
+        run: |
+          docker push \
+          ${{ steps.login-ecr.outputs.registry }}/carecell-frontend:latest
+
+      # Deploy to EC2
+
       - name: Deploy to EC2
-        uses: appleboy/ssh-action@v1.0.3
+        uses: appleboy/ssh-action@v1.2.0
         with:
           host: ${{ secrets.EC2_HOST }}
-          username: ${{ secrets.EC2_USER }}
+          username: ubuntu
           key: ${{ secrets.EC2_SSH_KEY }}
           script: |
-            cd /home/ubuntu/app
-
-            aws ecr get-login-password --region ap-south-1 | \
-            docker login --username AWS \
-            --password-stdin \
+            aws ecr get-login-password --region ap-south-2 | \
+            docker login --username AWS --password-stdin \
             ${{ steps.login-ecr.outputs.registry }}
 
+            cd /home/ubuntu/carecell
+
             docker compose pull
+
             docker compose up -d
