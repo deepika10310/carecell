@@ -11,6 +11,9 @@ jobs:
 
     steps:
 
+      - name: Verify AWS Identity
+        run: aws sts get-caller-identity
+        
       - name: Checkout
         uses: actions/checkout@v4
 
