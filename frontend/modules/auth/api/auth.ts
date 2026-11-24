@@ -1,6 +1,6 @@
 import type { AuthUser, Credentials, RegistrationDetails } from "@/modules/auth/types/auth";
 
-const apiUrl = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000";
+const apiUrl = process.env.NEXT_PUBLIC_API_URL ?? "http://ec2-40-192-117-225.ap-south-2.compute.amazonaws.com:8000";
 
 async function sendAuthRequest(path: string, payload?: Credentials | RegistrationDetails): Promise<AuthUser | null> {
   const response = await fetch(`${apiUrl}/api/auth/${path}`, {

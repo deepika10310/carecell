@@ -1,6 +1,6 @@
 import type { HelloResponse } from "@/modules/hello/types/hello";
 
-const apiUrl = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000";
+const apiUrl = process.env.NEXT_PUBLIC_API_URL ?? "http://ec2-40-192-117-225.ap-south-2.compute.amazonaws.com:8000";
 
 export async function fetchHello(signal: AbortSignal): Promise<HelloResponse> {
   const response = await fetch(`${apiUrl}/api/hello`, { signal });
