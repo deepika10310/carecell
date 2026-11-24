@@ -10,7 +10,7 @@ jobs:
     runs-on: ubuntu-latest
 
     env:
-      AWS_REGION: ap-south-1
+      AWS_REGION: ap-south-2
 
     steps:
       - name: Checkout Code
@@ -27,7 +27,7 @@ jobs:
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: ap-south-1
+          aws-region: ap-south-2
 
       - name: Verify AWS Identity
         run: aws sts get-caller-identity
@@ -77,7 +77,7 @@ jobs:
           username: ubuntu
           key: ${{ secrets.EC2_SSH_KEY }}
           script: |
-            aws ecr get-login-password --region ap-south-1 | \
+            aws ecr get-login-password --region ap-south-2 | \
             docker login --username AWS --password-stdin \
             ${{ steps.login-ecr.outputs.registry }}
 
