@@ -7,11 +7,13 @@ services:
     ports:
       - "3000:3000"
     environment:
-      NEXT_PUBLIC_API_URL: http://ec2-40-192-117-225.ap-south-2.compute.amazonaws.com/api
+      NEXT_PUBLIC_API_URL: http://ec2-40-192-117-225.ap-south-2.compute.amazonaws.com:8000/api
     command: ["npm", "start"]
 
   backend:
-    image: 514349355868.dkr.ecr.ap-south-2.amazonaws.com/carecell-backend
+    image: 514349355868.dkr.ecr.ap-south-2.amazonaws.com:800/carecell-backend
+    env_file:
+      - .env
     build:
       context: ./backend
       dockerfile: Dockerfile

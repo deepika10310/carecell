@@ -16,7 +16,7 @@ export type DoctorSummary = {
   full_name: string;
 };
 
-const apiUrl = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000";
+const apiUrl = process.env.NEXT_PUBLIC_API_URL ?? "http://ec2-40-192-117-225.ap-south-2.compute.amazonaws.com:8000";
 
 async function getErrorMessage(response: Response): Promise<string> {
   const data: unknown = await response.json().catch(() => null);
