@@ -19,10 +19,16 @@ def _s3_client():
     for name in ("AWS_ACCESS_KEY_ID", "AWS_SECRET_ACCESS_KEY", "AWS_SESSION_TOKEN"):
         if not os.environ.get(name):
             os.environ.pop(name, None)
-    print(f"Creating S3 client with region: {AWS_REGION} and endpoint: {AWS_S3_ENDPOINT_URL} and bucket: {AWS_S3_BUCKET}")
+    print(f"Creating S3 client with region: {AWS_REGION} and endpoint: {AWS_S3_ENDPOINT_URL or 'AWS default'} and bucket: {AWS_S3_BUCKET}")
     
-    s3 = boto3.client("s3", region_name=AWS_REGION, endpoint_url=AWS_S3_ENDPOINT_URL,
-                        aws_access_key_id=AWS_ACCESS_KEY_ID, aws_secret_access_key=AWS_SECRET_ACCESS_KEY)
+    client_options = {"region_name": AWS_REGION}
+    if AWS_S3_ENDPOINT_URL:
+        client_options["endpoint_url"] = AWS_S3_ENDPOINT_URL
+    if AWS_ACCESS_KEY_ID and AWS_SECRET_ACCESS_KEY:
+        client_options["aws_access_key_id"] = AWS_ACCESS_KEY_ID
+        client_options["aws_secret_access_key"] = AWS_SECRET_ACCESS_KEY
+
+    s3 = boto3.client("s3", **client_options)
     create_bucket_if_not_exists(s3, AWS_S3_BUCKET)
     return s3
 
