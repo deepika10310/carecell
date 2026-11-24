@@ -68,12 +68,6 @@ jobs:
           docker push \
           ${{ steps.login-ecr.outputs.registry }}/carecell-frontend:latest
 
-      - name: Debug EC2 Host
-        run: |
-          echo "Host length: ${#HOST}"
-        env:
-          HOST: ${{ secrets.EC2_HOST }}
-
       # Deploy to EC2
 
       - name: Deploy to EC2
