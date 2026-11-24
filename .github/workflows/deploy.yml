@@ -69,7 +69,6 @@ jobs:
           ${{ steps.login-ecr.outputs.registry }}/carecell-frontend:latest
 
       # Deploy to EC2
-
       - name: Deploy to EC2
         uses: appleboy/ssh-action@v1.2.0
         with:
