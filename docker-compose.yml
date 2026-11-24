@@ -1,6 +1,6 @@
 services:
   frontend:
-    image: carecell-frontend
+    image: 514349355868.dkr.ecr.ap-south-2.amazonaws.com/carecell-frontend
     build:
       context: ./frontend
       dockerfile: Dockerfile
@@ -11,7 +11,7 @@ services:
     command: ["npm", "start"]
 
   backend:
-    image: carecell-backend
+    image: 514349355868.dkr.ecr.ap-south-2.amazonaws.com/carecell-backend
     build:
       context: ./backend
       dockerfile: Dockerfile
