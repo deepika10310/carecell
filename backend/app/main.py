@@ -20,7 +20,7 @@ app = FastAPI(title="Carecell API", version="1.0.0", lifespan=lifespan)
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:3000", "http://127.0.0.1:3000", "http://ec2-40-192-117-225.ap-south-2.compute.amazonaws.com"],
+    allow_origins=["http://localhost:3000", "http://127.0.0.1:3000", "http://ec2-40-192-117-225.ap-south-2.compute.amazonaws.com", "http://ec2-40-192-117-225.ap-south-2.compute.amazonaws.com/", "http://ec2-40-192-117-225.ap-south-2.compute.amazonaws.com:8000"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
